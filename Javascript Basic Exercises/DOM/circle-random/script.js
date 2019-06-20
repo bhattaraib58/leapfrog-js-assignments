@@ -73,7 +73,7 @@ function Circle(parentElement, circleHeight, circleWidth, circleBackgroundColor,
             that.x--;
         }
         collessionDetection();
-    },1000/60);
+    },1000/600);
 
     // collession Detection for circle with parent
     function collessionDetection() {
