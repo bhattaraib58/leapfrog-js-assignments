@@ -1,0 +1,16 @@
+*{
+    margin: 0px;
+    padding: 0px;
+}
+.carousel-container {
+    background-color: red;
+}
+
+.carousel-image-wrapper {
+    width: 100%;
+    min-width: 500px;
+    max-width: 900px;
+    background-color: blue;
+    height: 500px;
+    margin: 0px auto;
+}

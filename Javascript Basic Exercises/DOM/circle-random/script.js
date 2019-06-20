@@ -73,7 +73,7 @@ function Circle(parentElement, circleHeight, circleWidth, circleBackgroundColor,
             that.x--;
         }
         collessionDetection();
-    }, 1);
+    },1000/60);
 
     // collession Detection for circle with parent
     function collessionDetection() {
@@ -98,6 +98,7 @@ var box = new Box();
 var element1 = new Circle(box, 50, 50, 'red', 220, 505);
 var element2 = new Circle(box, 100, 100, 'pink', 50, 200);
 var element3 = new Circle(box, 75, 75, 'purple', 5, 20);
+var element4 = new Circle(box, 35, 35, 'blue', 10, 50);
 
 // for checking the event of resize of window
 
