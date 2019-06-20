@@ -24,12 +24,11 @@ function Carousel(carouselId, transitionSpeed, interval) {
     interval = parseInt(interval) || 1000;
     //childrens of carousel
     var carouselChildren = carousel.children;
-
     // add event listner in window for resizing of window
     window.addEventListener("resize", resize, { passive: true });
     function resize(event) {
         carasouelWidth = parseInt(document.getElementById(carouselId).clientWidth);
-        // carousel.style.paddingBottom = parseInt(window.getComputedStyle(carouselChildren[0]).height) + "px";
+        carousel.style.paddingBottom = parseInt(window.getComputedStyle(carouselChildren[0]).height) + "px";
     }
 
     // loop through children of caraousel to set them as absolute and distance to put them
@@ -41,6 +40,7 @@ function Carousel(carouselId, transitionSpeed, interval) {
         carouselChildren[i].style.top = 0 + 'px';
         carouselChildren[i].style.left = (carasouelWidth * i) + 'px';
     }
+
 
     // request animation value 
     var animationFrame = 0;
@@ -70,7 +70,9 @@ function Carousel(carouselId, transitionSpeed, interval) {
             animationFrame = window.requestAnimationFrame(slideWindow);
         }
     }
-
+    //call resize for checking the dom changes
+    resize();
+    // request animation frame for smooth animation 
     window.requestAnimationFrame(slideWindow);
     console.log(carousel);
 }
