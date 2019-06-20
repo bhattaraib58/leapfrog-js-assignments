@@ -1,16 +1,10 @@
-*{
+* {
     margin: 0px;
     padding: 0px;
-}
-.carousel-container {
-    background-color: red;
+    box-sizing: border-box;
 }
 
-.carousel-image-wrapper {
-    width: 100%;
-    min-width: 500px;
-    max-width: 900px;
-    background-color: blue;
-    height: 500px;
-    margin: 0px auto;
+.carousel-container {
+    display: inline-block;
+    width: 48%;
 }

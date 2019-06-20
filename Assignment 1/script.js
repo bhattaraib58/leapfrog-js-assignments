@@ -1,53 +1,82 @@
-function Carousel(carouselId) {
-    carousel = document.getElementById(carouselId);
+/**
+ * Class Caraousel
+ *
+ * @param {*} carouselId
+ * @param {*} transitionSpeed -in ms
+ * @param {*} interval - in ms
+ */
+function Carousel(carouselId, transitionSpeed, interval) {
+
+    // Set get caraousel and set the values;
+    var carousel = document.getElementById(carouselId);
     carousel.style.position = 'relative';
     carousel.style.overflow = 'hidden';
-    carasouelWidth = carousel.clientWidth;
-    carasouelHeight = carousel.clientHeight;
+    carousel.style.width = '100%';
+    carousel.style.height = '0px';
+    carousel.style.paddingBottom = '100%';
+    var carasouelWidth = carousel.clientWidth;
 
-    var carasouelLeftSpace = 0;
+    // set transitionSpeed
+    // check the transitionSpeed and put 5ms as default if null
+    transitionSpeed = Math.abs(parseInt(transitionSpeed)) * -1 || -5;
 
-    carouselChildren = carousel.children;
+    // sets interval between slides default as 1s
+    interval = parseInt(interval) || 1000;
+    //childrens of carousel
+    var carouselChildren = carousel.children;
 
+    // add event listner in window for resizing of window
+    window.addEventListener("resize", resize, { passive: true });
+    function resize(event) {
+        carasouelWidth = parseInt(document.getElementById(carouselId).clientWidth);
+        // carousel.style.paddingBottom = parseInt(window.getComputedStyle(carouselChildren[0]).height) + "px";
+    }
+
+    // loop through children of caraousel to set them as absolute and distance to put them
     for (var i = 0; i < (carouselChildren.length); i++) {
-        console.log(carouselChildren[i]);
-        carouselChildren[i].style.width = carasouelWidth + 'px';
-        carouselChildren[i].style.height = carasouelHeight + 'px';
+        carouselChildren[i].style.width = 100 + '%';
+        carouselChildren[i].style.height = 'auto';
 
         carouselChildren[i].style.position = 'absolute';
         carouselChildren[i].style.top = 0 + 'px';
-        carouselChildren[i].style.left = (carasouelWidth * i) + carasouelLeftSpace + 'px';
+        carouselChildren[i].style.left = (carasouelWidth * i) + 'px';
     }
-    var interval = -5;
+
+    // request animation value 
     var animationFrame = 0;
+    var carasouelLeftSpace = 0;
 
+    //slideshow function
     function slideWindow() {
-        carasouelLeftSpace = carasouelLeftSpace + interval;
+        carasouelLeftSpace = carasouelLeftSpace + transitionSpeed;
 
+        // check if on end of slide or on first slide
+        if ((Math.abs(carasouelLeftSpace) + carasouelWidth) >= (carasouelWidth * carouselChildren.length) ||
+            Math.abs(carasouelLeftSpace) <= 0) {
+            transitionSpeed *= -1;
+        }
+
+        //change the image in moving position
         for (var i = 0; i < (carouselChildren.length); i++) {
             carouselChildren[i].style.left = (carasouelWidth * i) + carasouelLeftSpace + 'px';
-
-            if ((Math.abs(carasouelLeftSpace) + carasouelWidth) === (carasouelWidth * carouselChildren.length)
-                || (carasouelLeftSpace === 0)) {
-                interval *= -1;
-            }
         }
-        animationFrame = window.requestAnimationFrame(slideWindow);
+
+        if (Math.abs(carasouelLeftSpace) % carasouelWidth === 0) {
+            setTimeout(function () {
+                animationFrame = window.requestAnimationFrame(slideWindow);
+            }, interval);
+        }
+        else {
+            animationFrame = window.requestAnimationFrame(slideWindow);
+        }
     }
+
     window.requestAnimationFrame(slideWindow);
-    console.log(carouselChildren);
+    console.log(carousel);
 }
 
+var a = new Carousel('test1', 5, 200);
+var b = new Carousel('test2', 1, 100);
 
-new Carousel('test');
-
-var carousel = document.getElementById('test');
-// carousel.clientWidth
-
-
-var a = [1, 2, 3, 4, 5, 6];
-console.log(a);
-var temp = a.splice(0, 1);
-console.log(temp);
-console.log(a);
-a.push(temp);
+var c = new Carousel('test3', 1, 1000);
+var d = new Carousel('test4', 10, 1);
