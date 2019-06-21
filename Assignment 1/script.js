@@ -2,7 +2,7 @@
  * Class Caraousel
  *
  * @param {*} carouselId
- * @param {*} transitionSpeed -in ms, how fast slide moves
+ * @param {*} transitionSpeed -in px per frame speed, how fast slide moves
  * @param {*} interval - in ms, time between new slides
  */
 
@@ -45,12 +45,13 @@ function Carousel(carouselId, transitionSpeed, interval) {
     }
 
     // request animation value 
-    var animationFrame = 0;
+    var animationFrame = '';
     var carasouelLeftSpace = 0;
 
     //add control elements e.g:- left, right, circles- indexes
     var controlElement = createControlElements();
     parentCarousel.appendChild(controlElement);
+    setSliderIndicatorColor();
 
     //call resize for checking the dom changes
     resize();
@@ -86,9 +87,13 @@ function Carousel(carouselId, transitionSpeed, interval) {
 
         //check if the slide is in frame
         if (Math.abs(carasouelLeftSpace) % carasouelWidth === 0) {
+            window.cancelAnimationFrame(animationFrame);
+            setSliderIndicatorColor();
+
             setTimeout(function () {
                 animationFrame = window.requestAnimationFrame(slideWindow);
             }, interval);
+
         }
         else {
             animationFrame = window.requestAnimationFrame(slideWindow);
@@ -101,6 +106,21 @@ function Carousel(carouselId, transitionSpeed, interval) {
         button.style.backgroundColor = 'transparent';
         button.innerHTML = buttonData;
         return button;
+    }
+
+    function setSliderIndicatorColor() {
+        var indexWrapper = controlElement.children[2];
+
+        for (var i = 0; i < indexWrapper.childElementCount; i++) {
+            indexWrapper.children[i].style.backgroundColor = 'gray';
+            if (i === getSliderIndex()) {
+                indexWrapper.children[getSliderIndex()].style.backgroundColor = 'red';
+            }
+        }
+    }
+
+    function getSliderIndex() {
+        return parseInt(Math.abs(carasouelLeftSpace) / carasouelWidth);
     }
 
     function createControlElements() {
@@ -125,8 +145,7 @@ function Carousel(carouselId, transitionSpeed, interval) {
 
         leftButton.onclick = function () {
             if (!(carasouelLeftSpace > 0)) {
-                var currentIndex = parseInt(Math.abs(carasouelLeftSpace) / carasouelWidth);
-                carasouelLeftSpace = -((currentIndex) * carasouelWidth);
+                carasouelLeftSpace = -(getSliderIndex() * carasouelWidth);
             }
         };
 
@@ -170,11 +189,12 @@ function Carousel(carouselId, transitionSpeed, interval) {
             indexButton.style.marginRight = indexMarginBetween + 'px';
             indexButton.style.width = indexWidth + 'px';
             indexButton.style.height = indexHeight + 'px';
-            indexButton.style.fontSize = (indexHeight-4) + 'px';
+            indexButton.style.fontSize = (indexHeight - 4) + 'px';
             indexButton.style.textAlign = 'center';
             indexButton.style.bottom = 0;
             indexButton.onclick = function (i) {
                 return function () {
+                    setSliderIndicatorColor();
                     carasouelLeftSpace = -((i) * carasouelWidth);
                 }
             }(i);
@@ -190,7 +210,7 @@ function Carousel(carouselId, transitionSpeed, interval) {
 }
 
 //carasouel object based on the transition interval and carasoul object
-var a = new Carousel('test1', 5, 200);
-var b = new Carousel('test2', 1, 100);
-var c = new Carousel('test3', 1, 1000);
-var d = new Carousel('test4', 10, 1);
+var a = new Carousel('test1', 15, 2000);
+var b = new Carousel('test2', 1, 1000);
+var c = new Carousel('test3', 5, 1000);
+var d = new Carousel('test4', 10, 4000);
