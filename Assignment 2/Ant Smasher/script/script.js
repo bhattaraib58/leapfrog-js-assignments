@@ -1,9 +1,9 @@
-var BOX_HEIGHT = 10;
-var BOX_WIDTH = 10;
-var BOX_MOVE_SPEED = 1;
-var GAME_ANIMATION_SPEED_FPS = 60;
-
 (function () {
+    var BOX_HEIGHT = 10;
+    var BOX_WIDTH = 10;
+    var BOX_MOVE_SPEED = 1;
+    var GAME_ANIMATION_SPEED_FPS = 60;
+
 
     //create the box container with styles
     (function () {
@@ -29,8 +29,13 @@ var GAME_ANIMATION_SPEED_FPS = 60;
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    function getRandomBoolean() {
-        return Math.random() >= 0.5;
+    function getAngleBetweenTwoPoints(cx, cy, ex, ey) {
+        var dy = ey - cy;
+        var dx = ex - cx;
+        var theta = Math.atan2(dy, dx); // range (-PI, PI]
+        theta *= 180 / Math.PI; // rads to degs, range (-180, 180]
+        if (theta < 0) theta = 360 + theta; // range [0, 360)
+        return theta;
     }
 
     /**
@@ -60,6 +65,23 @@ var GAME_ANIMATION_SPEED_FPS = 60;
         // boxVerticalMoving true for top to down moving, 
         // boxVerticalMoving false for down to top moving
         this.boxVerticalMoving = false;
+        this.antKilled = false;
+
+        var vector = 0;
+        var angle = 160;
+
+        this.getAngleWithRespectToParent = function () {
+            var parentHeight = parentElement.clientHeight;
+            var parentWidth = parentElement.clientWidth;
+            var angle = getAngleBetweenTwoPoints(this.x, this.y, parentWidth, parentHeight);
+            return angle;
+        }
+
+        var that = this;
+        this.clearBox = function () {
+            that.boxElement.remove();
+            that.antKilled = true;
+        };
 
 
         /**
@@ -79,6 +101,7 @@ var GAME_ANIMATION_SPEED_FPS = 60;
             this.boxElement.style.position = 'absolute';
             parentElement && parentElement.appendChild(this.boxElement);
 
+            this.boxElement.addEventListener("click", this.clearBox);
         };
 
         /**
@@ -87,13 +110,16 @@ var GAME_ANIMATION_SPEED_FPS = 60;
         this.draw = function () {
             this.boxElement.style.top = this.y + 'px';
             this.boxElement.style.left = this.x + 'px';
+            // this.boxElement.style.transform = 'rotate(150deg)';
         };
 
         /**
          *  Move the box in x- axis or y-axis by provided increment values
          */
         this.move = function () {
-            
+            // angle = this.getAngleWithRespectToParent();
+            // this.boxElement.style.transform = 'rotate(' + angle + 'deg)';
+
             if (this.boxHorizontalMoving === true && this.boxVerticalMoving === true) {
                 this.x += this.speed;
                 this.y += this.speed;
@@ -125,6 +151,14 @@ var GAME_ANIMATION_SPEED_FPS = 60;
         this.getBoxBottom = function () { return this.y + this.boxHeight; };
         this.getBoxLeft = function () { return this.x; };
         this.getBoxRight = function () { return this.x + this.boxWidth; };
+
+
+        this.centerX = function () { return this.x + this.halfWidth(); };
+
+        this.centerY = function () { return this.y + this.halfHeight(); };
+
+        this.halfWidth = function () { return this.boxWidth / 2; };
+        this.halfHeight = function () { return this.boxHeight / 2; };
     }
 
     /**
@@ -165,10 +199,19 @@ var GAME_ANIMATION_SPEED_FPS = 60;
             if (timestamp >= start) {
                 var parentHeight = parentElement.clientHeight;
                 var parentWidth = parentElement.clientWidth;
-
-                for (var i = 0; i < ballCount; i++) {
+                var newArray;
+                for (var i = 0; i < boxes.length; i++) {
                     var box = boxes[i];
-                    this.CollisionDetection(box, parentWidth, parentHeight);
+                    if (boxes[i].antKilled === true) {
+                        newArray = boxes.slice(0, i).concat(boxes.slice(i + 1, boxes.length))
+                    }
+                    else {
+                        this.CollisionDetection(box, parentWidth, parentHeight);
+                    }
+                }
+
+                if (!!newArray) {
+                    boxes = newArray;
                 }
                 start = timestamp + frameDuration;
             }
@@ -235,7 +278,7 @@ var GAME_ANIMATION_SPEED_FPS = 60;
     // 30 fps sweet spot for 1000 ball tests
     // 120 fps best for smooth running but on less than 200 balls
     // Note: FPS also limited by your display 
-    var gameAnimation = new GameAnimation(10, 30, parentElement);
+    var gameAnimation = new GameAnimation(100, 30, parentElement);
 
     //for now setted the box size also as random
     gameAnimation.init();
@@ -243,15 +286,10 @@ var GAME_ANIMATION_SPEED_FPS = 60;
 
 
 
-    
 
 
-    // this.centerX = function () { return this.x + this.halfWidth(); };
 
-    // this.centerY = function () { return this.y + this.halfHeight(); };
 
-    // this.halfWidth = function () { return this.boxWidth / 2; };
-    // this.halfHeight = function () { return this.boxHeight / 2; };
     // function hitTest(box1, box2) {
 
     //     // console.log(box1);
@@ -265,33 +303,44 @@ var GAME_ANIMATION_SPEED_FPS = 60;
     //     var magnitude = Math.sqrt(vx * vx + vy * vy);
 
     //     // add box total radii to get distance if close
-    //     var totalRadii = box1.halfWidth() + box2.halfWidth();
+    //     var combinedHalfWidths = box1.halfWidth() + box2.halfWidth();
 
-    //     // find out how much circle is overlaping
-    //     var overlap = totalRadii - magnitude;
 
-    //     // calculate direction
-    //     var dx = vx / magnitude;
-    //     var dy = vy / magnitude;
+    //     if (magnitude < combinedHalfWidths) {
+    //         // find out how much circle is overlaping
+    //         var overlap = combinedHalfWidths - magnitude;
 
-    //     // now set circle value to move out of collision
-    //     // box1.x+=overlap*dx;
-    //     // box1.y+=overlap*dy;       
+    //         // calculate direction
+    //         var dx = vx / magnitude;
+    //         var dy = vy / magnitude;
+
+    //         // now set circle value to move out of collision
+    //         box1.x += overlap * dx;
+    //         box1.y += overlap * dy;
+
+    //         console.log('======================');
+    //         console.log('Kala HIT');
+    //         console.log('======================');
+    //         console.log('Hit Test::' + hit);
+    //         console.log('vx:' + vx);
+    //         console.log('vy:' + vy);
+    //         console.log('magnitude:' + magnitude);
+    //         console.log('totalRadii:' + totalRadii);
+    //         console.log('overlap:' + overlap);
+    //         console.log('dx:' + dx);
+    //         console.log('dy:' + dy);
+    //         console.log('add x:' + box1.x + overlap * dx);
+    //         console.log('add y:' + box1.y + overlap * dy);
+    //     }
+    //     else
+    //     {
+    //         box1.move();
+    //     }
 
     //     // sets hit to true if the distance between circle is less than totalradii
     //     var hit = magnitude < totalRadii;
 
     //     // box1.move(dx, dy);
-    //     console.log('Hit Test::' + hit);
-    //     // console.log('vx:'+vx);
-    //     // console.log('vy:'+vy);
-    //     // console.log('magnitude:'+magnitude);
-    //     // console.log('totalRadii:'+totalRadii);
-    //     // console.log('overlap:'+overlap);
-    //     // console.log('dx:'+dx);
-    //     // console.log('dy:'+dy);
-    //     // console.log('add x:'+box1.x+overlap*dx);
-    //     // console.log('add y:'+box1.y+overlap*dy);
 
 
 
