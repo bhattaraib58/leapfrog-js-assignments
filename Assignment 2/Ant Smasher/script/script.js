@@ -9,7 +9,7 @@
     (function () {
         var boxcontainer = document.getElementById('boxcontainer');
         boxcontainer.style.position = 'relative';
-        boxcontainer.style.backgroundColor = 'black';
+        // boxcontainer.style.backgroundColor = 'black';
         boxcontainer.style.height = '100%';
         boxcontainer.style.width = '90%';
         boxcontainer.style.border = '1px solid black';
@@ -155,7 +155,7 @@
             smashedBug.style.backgroundImage = `url('./images/smashed-bug.png')`;
             smashedBug.style.backgroundRepeat = 'no-repeat';
             smashedBug.style.backgroundPosition = 'center';
-            smashedBug.style.backgroundSize = '80% 80%';
+            smashedBug.style.backgroundSize = '100% 100%';
 
             smashedBug.style.height = this.boxHeight + 'px';
             smashedBug.style.width = this.boxWidth + 'px';
