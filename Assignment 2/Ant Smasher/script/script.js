@@ -253,7 +253,7 @@
         this.addCongratulationMessage = function () {
             var congratsMsg = document.createTextNode('Congratulation You Have won the Game !!!');
             parentElement.appendChild(congratsMsg);
-            parentElement.style.color = '#ffffff';
+            // parentElement.style.color = '#ffffff';
             parentElement.style.textAlign = 'center';
 
             setTimeout(function () {
@@ -324,7 +324,7 @@
     // 30 fps sweet spot for 1000 ball tests
     // 120 fps best for smooth running but on less than 200 balls
     // Note: FPS also limited by your display 
-    var gameAnimation = new GameAnimation(50, 30, parentElement);
+    var gameAnimation = new GameAnimation(20, 30, parentElement);
 
     //for now setted the box size also as random
     gameAnimation.init();

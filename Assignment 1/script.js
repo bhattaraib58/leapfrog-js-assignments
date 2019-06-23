@@ -142,6 +142,8 @@ function Carousel(carouselId, transitionSpeed, interval) {
         leftButton.style.top = '50%';
         leftButton.style.left = 0;
         leftButton.style.position = 'absolute';
+        leftButton.style.width = '5%';
+        leftButton.style.height = '5%';
 
         leftButton.onclick = function () {
             if (!(carasouelLeftSpace > 0)) {
@@ -157,6 +159,8 @@ function Carousel(carouselId, transitionSpeed, interval) {
         rightButton.style.right = 0;
         rightButton.style.top = '50%';
         rightButton.style.position = 'absolute';
+        rightButton.style.width = '5%';
+        rightButton.style.height = '5%';
 
         rightButton.onclick = function () {
             if (!((carasouelLeftSpace - carasouelWidth) < -(carasouelWidth * carouselChildren.length))) {
