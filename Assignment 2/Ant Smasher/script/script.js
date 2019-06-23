@@ -81,6 +81,7 @@
         this.clearBox = function () {
             that.boxElement.remove();
             that.antKilled = true;
+            that.createSmashedBug();
         };
 
 
@@ -97,8 +98,9 @@
 
             this.boxElement.style.height = this.boxHeight + 'px';
             this.boxElement.style.width = this.boxWidth + 'px';
-            this.boxElement.style.borderRadius = '50%';
             this.boxElement.style.position = 'absolute';
+            this.boxElement.style.zIndex=20;
+
             parentElement && parentElement.appendChild(this.boxElement);
 
             this.boxElement.addEventListener("click", this.clearBox);
@@ -146,6 +148,29 @@
             this.draw();
         };
 
+
+        this.createSmashedBug = function () {
+            var smashedBug = document.createElement('div');
+
+            smashedBug.style.backgroundImage = `url('./images/smashed-bug.png')`;
+            smashedBug.style.backgroundRepeat = 'no-repeat';
+            smashedBug.style.backgroundPosition = 'center';
+            smashedBug.style.backgroundSize = '80% 80%';
+
+            smashedBug.style.height = this.boxHeight + 'px';
+            smashedBug.style.width = this.boxWidth + 'px';
+            smashedBug.style.position = 'absolute';
+            smashedBug.style.top = this.y + 'px';
+            smashedBug.style.left = this.x + 'px';
+            smashedBug.style.zIndex=10;
+
+            setTimeout(function () {
+                smashedBug.remove();
+            }, 1000);
+
+            parentElement && parentElement.appendChild(smashedBug);
+        };
+
         // get the four side coordinates of the box
         this.getBoxTop = function () { return this.y; };
         this.getBoxBottom = function () { return this.y + this.boxHeight; };
@@ -176,7 +201,7 @@
         fps = fps || GAME_ANIMATION_SPEED_FPS;
         var start = 0,
             frameDuration = 1000 / fps;
-
+        var animationFrameVariable = 0;
         this.init = function () {
             var parentHeight = parentElement.clientHeight;
             var parentWidth = parentElement.clientWidth;
@@ -192,7 +217,7 @@
                 box.draw();
                 boxes.push(box);
             }
-            window.requestAnimationFrame(this.animate.bind(this));
+            animationFrameVariable = window.requestAnimationFrame(this.animate.bind(this));
         };
 
         this.animate = function (timestamp) {
@@ -215,7 +240,28 @@
                 }
                 start = timestamp + frameDuration;
             }
-            window.requestAnimationFrame(this.animate.bind(this));
+            if (boxes === undefined || boxes.length == 0) {
+
+                console.log(boxes);
+                window.cancelAnimationFrame(animationFrameVariable);
+
+                var congratsMsg = document.createTextNode('Congratulation You Have won the Game !!!');
+                parentElement.appendChild(congratsMsg);
+                parentElement.style.color = '#ffffff';
+                parentElement.style.textAlign = 'center';
+
+                setTimeout(function () {
+                    parentElement.style.backgroundImage = `url('./images/siperman-smashing-bug.gif')`;
+                    parentElement.style.backgroundRepeat = 'no-repeat';
+                    parentElement.style.backgroundPosition = 'center';
+                    parentElement.style.backgroundSize = '50% 50%';
+                }, 500);
+
+            }
+            if (boxes.length != 0) {
+                animationFrameVariable = window.requestAnimationFrame(this.animate.bind(this));
+            }
+
         };
 
         this.CollisionDetection = function (box, parentWidth, parentHeight) {
@@ -278,7 +324,7 @@
     // 30 fps sweet spot for 1000 ball tests
     // 120 fps best for smooth running but on less than 200 balls
     // Note: FPS also limited by your display 
-    var gameAnimation = new GameAnimation(100, 30, parentElement);
+    var gameAnimation = new GameAnimation(2, 30, parentElement);
 
     //for now setted the box size also as random
     gameAnimation.init();
