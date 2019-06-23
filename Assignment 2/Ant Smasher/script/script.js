@@ -99,7 +99,7 @@
             this.boxElement.style.height = this.boxHeight + 'px';
             this.boxElement.style.width = this.boxWidth + 'px';
             this.boxElement.style.position = 'absolute';
-            this.boxElement.style.zIndex=20;
+            this.boxElement.style.zIndex = 20;
 
             parentElement && parentElement.appendChild(this.boxElement);
 
@@ -162,7 +162,7 @@
             smashedBug.style.position = 'absolute';
             smashedBug.style.top = this.y + 'px';
             smashedBug.style.left = this.x + 'px';
-            smashedBug.style.zIndex=10;
+            smashedBug.style.zIndex = 10;
 
             setTimeout(function () {
                 smashedBug.remove();
@@ -241,27 +241,27 @@
                 start = timestamp + frameDuration;
             }
             if (boxes === undefined || boxes.length == 0) {
-
-                console.log(boxes);
                 window.cancelAnimationFrame(animationFrameVariable);
-
-                var congratsMsg = document.createTextNode('Congratulation You Have won the Game !!!');
-                parentElement.appendChild(congratsMsg);
-                parentElement.style.color = '#ffffff';
-                parentElement.style.textAlign = 'center';
-
-                setTimeout(function () {
-                    parentElement.style.backgroundImage = `url('./images/siperman-smashing-bug.gif')`;
-                    parentElement.style.backgroundRepeat = 'no-repeat';
-                    parentElement.style.backgroundPosition = 'center';
-                    parentElement.style.backgroundSize = '50% 50%';
-                }, 500);
-
+                this.addCongratulationMessage();
             }
             if (boxes.length != 0) {
                 animationFrameVariable = window.requestAnimationFrame(this.animate.bind(this));
             }
 
+        };
+
+        this.addCongratulationMessage = function () {
+            var congratsMsg = document.createTextNode('Congratulation You Have won the Game !!!');
+            parentElement.appendChild(congratsMsg);
+            parentElement.style.color = '#ffffff';
+            parentElement.style.textAlign = 'center';
+
+            setTimeout(function () {
+                parentElement.style.backgroundImage = `url('./images/siperman-smashing-bug.gif')`;
+                parentElement.style.backgroundRepeat = 'no-repeat';
+                parentElement.style.backgroundPosition = 'center';
+                parentElement.style.backgroundSize = '50% 50%';
+            }, 500);
         };
 
         this.CollisionDetection = function (box, parentWidth, parentHeight) {
@@ -324,7 +324,7 @@
     // 30 fps sweet spot for 1000 ball tests
     // 120 fps best for smooth running but on less than 200 balls
     // Note: FPS also limited by your display 
-    var gameAnimation = new GameAnimation(2, 30, parentElement);
+    var gameAnimation = new GameAnimation(50, 30, parentElement);
 
     //for now setted the box size also as random
     gameAnimation.init();
