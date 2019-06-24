@@ -1,8 +1,12 @@
 (function () {
-    var BOX_HEIGHT = 10;
-    var BOX_WIDTH = 10;
-    var BOX_MOVE_SPEED = 1;
+    var ANT_HEIGHT = 10;
+    var ANT_WIDTH = 10;
     var GAME_ANIMATION_SPEED_FPS = 60;
+    var MIN_ANT_SIZE = 20;
+    var MAX_ANT_SIZE = 40;
+    //pixel per frame
+    var MIN_ANT_SPEED = 1;
+    var MAX_ANT_SPEED = 5;
 
 
     //create the box container with styles
@@ -29,125 +33,104 @@
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    function getAngleBetweenTwoPoints(cx, cy, ex, ey) {
-        var dy = ey - cy;
-        var dx = ex - cx;
-        var theta = Math.atan2(dy, dx); // range (-PI, PI]
-        theta *= 180 / Math.PI; // rads to degs, range (-180, 180]
-        if (theta < 0) theta = 360 + theta; // range [0, 360)
-        return theta;
+    function getRandomBoolean() {
+        return Math.random() >= 0.5;
     }
 
     /**
-     * BOX Class
+     * ANT Class
      *
      * @param {*} x
      * @param {*} y
-     * @param {*} boxWidth
-     * @param {*} boxHeight
+     * @param {*} antWidth
+     * @param {*} antHeight
      * @param {*} speed
      * @param {*} parentElement
      */
-    function Box(x, y, boxWidth, boxHeight, speed, parentElement) {
+    function Ant(x, y, antWidth, antHeight, speed, parentElement) {
         this.x = x;
         this.y = y;
-        this.boxWidth = boxWidth || BOX_WIDTH;
-        this.boxHeight = boxHeight || BOX_HEIGHT;
+        this.antWidth = antWidth || ANT_WIDTH;
+        this.antHeight = antHeight || ANT_HEIGHT;
 
-        this.speed = speed || BOX_MOVE_SPEED;
+        this.speed = speed || MIN_ANT_SPEED;
 
-        this.boxElement = null;
+        this.antElement = null;
 
-        // boxHorizontalMoving true for left to right moving, 
-        // boxHorizontalMoving false for right to left moving
-        this.boxHorizontalMoving = false;
+        // antHorizontalMoving true for left to right moving, 
+        // antHorizontalMoving false for right to left moving
+        this.antHorizontalMoving = getRandomBoolean();
 
-        // boxVerticalMoving true for top to down moving, 
-        // boxVerticalMoving false for down to top moving
-        this.boxVerticalMoving = false;
+        // antVerticalMoving true for top to down moving, 
+        // antVerticalMoving false for down to top moving
+        this.antVerticalMoving = getRandomBoolean();
         this.antKilled = false;
 
-        var vector = 0;
-        var angle = 160;
-
-        this.getAngleWithRespectToParent = function () {
-            var parentHeight = parentElement.clientHeight;
-            var parentWidth = parentElement.clientWidth;
-            var angle = getAngleBetweenTwoPoints(this.x, this.y, parentWidth, parentHeight);
-            return angle;
-        }
-
         var that = this;
-        this.clearBox = function () {
-            that.boxElement.remove();
+        this.clearAnt = function () {
+            that.antElement.remove();
             that.antKilled = true;
             that.createSmashedBug();
         };
 
-
         /**
-         *   Initialize the box 
+         *   Initialize the ant 
          */
         this.init = function () {
-            this.boxElement = document.createElement('div');
+            this.antElement = document.createElement('div');
 
-            this.boxElement.style.backgroundImage = `url('./images/animated-ant.gif')`;
-            this.boxElement.style.backgroundRepeat = 'no-repeat';
-            this.boxElement.style.backgroundPosition = 'center';
-            this.boxElement.style.backgroundSize = '100% 100%';
+            this.antElement.style.backgroundImage = `url('./images/animated-ant.gif')`;
+            this.antElement.style.backgroundRepeat = 'no-repeat';
+            this.antElement.style.backgroundPosition = 'center';
+            this.antElement.style.backgroundSize = '100% 100%';
 
-            this.boxElement.style.height = this.boxHeight + 'px';
-            this.boxElement.style.width = this.boxWidth + 'px';
-            this.boxElement.style.position = 'absolute';
-            this.boxElement.style.zIndex = 20;
+            this.antElement.style.height = this.antHeight + 'px';
+            this.antElement.style.width = this.antWidth + 'px';
+            this.antElement.style.position = 'absolute';
+            this.antElement.style.zIndex = 20;
 
-            parentElement && parentElement.appendChild(this.boxElement);
+            parentElement && parentElement.appendChild(this.antElement);
 
-            this.boxElement.addEventListener("click", this.clearBox);
+            this.antElement.addEventListener("click", this.clearAnt);
         };
 
         /**
-         *   Draw the box in X,Y Cordinate
+         *   Draw the ant in X,Y Cordinate
          */
         this.draw = function () {
-            this.boxElement.style.top = this.y + 'px';
-            this.boxElement.style.left = this.x + 'px';
-            // this.boxElement.style.transform = 'rotate(150deg)';
+            this.antElement.style.top = this.y + 'px';
+            this.antElement.style.left = this.x + 'px';
         };
 
         /**
-         *  Move the box in x- axis or y-axis by provided increment values
+         *  Move the ant in x- axis or y-axis by provided increment values
          */
         this.move = function () {
-            // angle = this.getAngleWithRespectToParent();
-            // this.boxElement.style.transform = 'rotate(' + angle + 'deg)';
-
-            if (this.boxHorizontalMoving === true && this.boxVerticalMoving === true) {
+            if (this.antHorizontalMoving === true && this.antVerticalMoving === true) {
                 this.x += this.speed;
                 this.y += this.speed;
-                this.boxElement.style.transform = 'rotate(0deg)';
+                this.antElement.style.transform = 'rotate(0deg)';
             }
 
-            if (this.boxHorizontalMoving === false && this.boxVerticalMoving === true) {
+            if (this.antHorizontalMoving === false && this.antVerticalMoving === true) {
                 this.x -= this.speed;
                 this.y += this.speed;
-                this.boxElement.style.transform = 'rotate(-50deg)';
+                this.antElement.style.transform = 'rotate(-50deg)';
             }
 
-            if (this.boxHorizontalMoving === true && this.boxVerticalMoving === false) {
+            if (this.antHorizontalMoving === true && this.antVerticalMoving === false) {
                 this.x += this.speed;
                 this.y -= this.speed;
-                this.boxElement.style.transform = 'rotate(50deg)';
+                this.antElement.style.transform = 'rotate(50deg)';
             }
 
-            if (this.boxHorizontalMoving === false && this.boxVerticalMoving === false) {
+            if (this.antHorizontalMoving === false && this.antVerticalMoving === false) {
                 this.x -= this.speed;
                 this.y -= this.speed;
-                this.boxElement.style.transform = 'rotate(180deg)';
+                this.antElement.style.transform = 'rotate(180deg)';
             }
             this.draw();
         };
-
 
         this.createSmashedBug = function () {
             var smashedBug = document.createElement('div');
@@ -157,8 +140,8 @@
             smashedBug.style.backgroundPosition = 'center';
             smashedBug.style.backgroundSize = '100% 100%';
 
-            smashedBug.style.height = this.boxHeight + 'px';
-            smashedBug.style.width = this.boxWidth + 'px';
+            smashedBug.style.height = this.antHeight + 'px';
+            smashedBug.style.width = this.antWidth + 'px';
             smashedBug.style.position = 'absolute';
             smashedBug.style.top = this.y + 'px';
             smashedBug.style.left = this.x + 'px';
@@ -171,20 +154,14 @@
             parentElement && parentElement.appendChild(smashedBug);
         };
 
-        // get the four side coordinates of the box
-        this.getBoxTop = function () { return this.y; };
-        this.getBoxBottom = function () { return this.y + this.boxHeight; };
-        this.getBoxLeft = function () { return this.x; };
-        this.getBoxRight = function () { return this.x + this.boxWidth; };
-
-
-        this.centerX = function () { return this.x + this.halfWidth(); };
-
-        this.centerY = function () { return this.y + this.halfHeight(); };
-
-        this.halfWidth = function () { return this.boxWidth / 2; };
-        this.halfHeight = function () { return this.boxHeight / 2; };
+        // get the four side coordinates of the ant
+        this.getAntTop = function () { return this.y; };
+        this.getAntBottom = function () { return this.y + this.antHeight; };
+        this.getAntLeft = function () { return this.x; };
+        this.getAntRight = function () { return this.x + this.antWidth; };
     }
+
+
 
     /**
      *  Game Animation Class
@@ -197,25 +174,37 @@
      * @param {*} parentElement
      */
     function GameAnimation(ballCount, fps, parentElement) {
-        var boxes = [];
+        var ants = [];
         fps = fps || GAME_ANIMATION_SPEED_FPS;
         var start = 0,
             frameDuration = 1000 / fps;
         var animationFrameVariable = 0;
-        this.init = function () {
+
+        this.init = function (minAntSize, maxAntSize) {
+            minAntSize = minAntSize || MIN_ANT_SIZE;
+            maxAntSize = maxAntSize || MAX_ANT_SIZE;
+
             var parentHeight = parentElement.clientHeight;
             var parentWidth = parentElement.clientWidth;
+            var parentWidthBoundaryForAntApperance = parentWidth;
+            var parentHeightBoundaryForAntApperance = parentHeight;
 
             for (var i = 0; i < ballCount; i++) {
-                var speed = getRandom(1, 5);
-                var x = getRandom(0, (parentWidth - (parentWidth * 3 / 100)));
-                var y = getRandom(0, (parentHeight - (parentWidth * 3 / 100)));
-                // create the box inside the parent
-                var box = new Box(x, y, 40, 40, speed, parentElement);
+                var size = getRandom(minAntSize, maxAntSize);
+                var speed = getRandom(MIN_ANT_SPEED, MAX_ANT_SPEED);
 
-                box.init();
-                box.draw();
-                boxes.push(box);
+                parentWidthBoundaryForAntApperance = parentWidth - size;
+                parentHeightBoundaryForAntApperance = parentHeight - size;
+
+                var x = getRandom(0, parentWidthBoundaryForAntApperance);
+                var y = getRandom(0, parentHeightBoundaryForAntApperance);
+
+                // create the ant inside the parent
+                var ant = new Ant(x, y, size, size, speed, parentElement);
+
+                ant.init();
+                ant.draw();
+                ants.push(ant);
             }
             animationFrameVariable = window.requestAnimationFrame(this.animate.bind(this));
         };
@@ -225,26 +214,26 @@
                 var parentHeight = parentElement.clientHeight;
                 var parentWidth = parentElement.clientWidth;
                 var newArray;
-                for (var i = 0; i < boxes.length; i++) {
-                    var box = boxes[i];
-                    if (boxes[i].antKilled === true) {
-                        newArray = boxes.slice(0, i).concat(boxes.slice(i + 1, boxes.length))
+                for (var i = 0; i < ants.length; i++) {
+                    var ant = ants[i];
+                    if (ants[i].antKilled === true) {
+                        newArray = ants.slice(0, i).concat(ants.slice(i + 1, ants.length))
                     }
                     else {
-                        this.CollisionDetection(box, parentWidth, parentHeight);
+                        this.CollisionDetection(ant, parentWidth, parentHeight);
                     }
                 }
 
                 if (!!newArray) {
-                    boxes = newArray;
+                    ants = newArray;
                 }
                 start = timestamp + frameDuration;
             }
-            if (boxes === undefined || boxes.length == 0) {
+            if (ants === undefined || ants.length == 0) {
                 window.cancelAnimationFrame(animationFrameVariable);
                 this.addCongratulationMessage();
             }
-            if (boxes.length != 0) {
+            if (ants.length != 0) {
                 animationFrameVariable = window.requestAnimationFrame(this.animate.bind(this));
             }
 
@@ -252,65 +241,60 @@
 
         this.addCongratulationMessage = function () {
             var congratsMsg = document.createTextNode('Congratulation You Have won the Game !!!');
+            parentElement.style.fontSize = '40px';
             parentElement.appendChild(congratsMsg);
-            // parentElement.style.color = '#ffffff';
+            parentElement.style.backgroundColor = 'black';
             parentElement.style.textAlign = 'center';
-
-            setTimeout(function () {
-                parentElement.style.backgroundImage = `url('./images/siperman-smashing-bug.gif')`;
-                parentElement.style.backgroundRepeat = 'no-repeat';
-                parentElement.style.backgroundPosition = 'center';
-                parentElement.style.backgroundSize = '50% 50%';
-            }, 500);
+            parentElement.style.color = 'white';
         };
 
-        this.CollisionDetection = function (box, parentWidth, parentHeight) {
-            this.CollisionDetectionWithOtherMovingObjects(box);
-            this.collessionDetectionWithParentContainer(box, parentWidth, parentHeight);
-            box.move();
+        this.CollisionDetection = function (ant, parentWidth, parentHeight) {
+            this.CollisionDetectionWithOtherMovingObjects(ant);
+            this.collessionDetectionWithParentContainer(ant, parentWidth, parentHeight);
+            ant.move();
         };
 
-        this.collessionDetectionWithParentContainer = function (box, parentWidth, parentHeight) {
-            if (box.getBoxRight() >= parentWidth) {
-                box.boxHorizontalMoving = false;
+        this.collessionDetectionWithParentContainer = function (ant, parentWidth, parentHeight) {
+            if (ant.getAntRight() >= parentWidth) {
+                ant.antHorizontalMoving = false;
             }
-            if (box.getBoxLeft() <= 0) {
-                box.boxHorizontalMoving = true;
+            if (ant.getAntLeft() <= 0) {
+                ant.antHorizontalMoving = true;
             }
 
-            if (box.getBoxBottom() >= parentHeight) {
-                box.boxVerticalMoving = false;
+            if (ant.getAntBottom() >= parentHeight) {
+                ant.antVerticalMoving = false;
             }
-            if (box.getBoxTop() <= 0) {
-                box.boxVerticalMoving = true;
+            if (ant.getAntTop() <= 0) {
+                ant.antVerticalMoving = true;
             }
         };
 
-        this.CollisionDetectionWithOtherMovingObjects = function (box) {
-            var currentIndex = boxes.indexOf(box);
+        this.CollisionDetectionWithOtherMovingObjects = function (ant) {
+            var currentIndex = ants.indexOf(ant);
 
-            for (var i = 0; i < boxes.length; i++) {
+            for (var i = 0; i < ants.length; i++) {
                 if (i != currentIndex) {
-                    if (box.getBoxLeft() < boxes[i].getBoxRight() &&
-                        box.getBoxRight() > boxes[i].getBoxLeft() &&
-                        box.getBoxTop() < boxes[i].getBoxBottom() &&
-                        box.getBoxBottom() > boxes[i].getBoxTop()) {
-                        if (box.x > boxes[i].x) {
-                            box.boxHorizontalMoving = true;
-                            boxes[i].boxHorizontalMoving = false;
+                    if (ant.getAntLeft() < ants[i].getAntRight() &&
+                        ant.getAntRight() > ants[i].getAntLeft() &&
+                        ant.getAntTop() < ants[i].getAntBottom() &&
+                        ant.getAntBottom() > ants[i].getAntTop()) {
+                        if (ant.x > ants[i].x) {
+                            ant.antHorizontalMoving = true;
+                            ants[i].antHorizontalMoving = false;
                         }
                         else {
-                            box.boxHorizontalMoving = false;
-                            boxes[i].boxHorizontalMoving = true;
+                            ant.antHorizontalMoving = false;
+                            ants[i].antHorizontalMoving = true;
                         }
 
-                        if (box.y > boxes[i].y) {
-                            box.boxVerticalMoving = true;
-                            boxes[i].boxVerticalMoving = false;
+                        if (ant.y > ants[i].y) {
+                            ant.antVerticalMoving = true;
+                            ants[i].antVerticalMoving = false;
                         }
                         else {
-                            box.boxVerticalMoving = false;
-                            boxes[i].boxVerticalMoving = true;
+                            ant.antVerticalMoving = false;
+                            ants[i].antVerticalMoving = true;
                         }
                     }
                 }
@@ -324,73 +308,8 @@
     // 30 fps sweet spot for 1000 ball tests
     // 120 fps best for smooth running but on less than 200 balls
     // Note: FPS also limited by your display 
-    var gameAnimation = new GameAnimation(20, 30, parentElement);
+    var gameAnimation = new GameAnimation(5, 120, parentElement);
 
-    //for now setted the box size also as random
-    gameAnimation.init();
-
-
-
-
-
-
-
-
-    // function hitTest(box1, box2) {
-
-    //     // console.log(box1);
-    //     // console.log(box2);
-
-    //     // calculate vector between circles
-    //     var vx = box1.centerX() - box2.centerX(),
-    //         vy = box1.centerY() - box2.centerY();
-
-    //     // find the distance between circles
-    //     var magnitude = Math.sqrt(vx * vx + vy * vy);
-
-    //     // add box total radii to get distance if close
-    //     var combinedHalfWidths = box1.halfWidth() + box2.halfWidth();
-
-
-    //     if (magnitude < combinedHalfWidths) {
-    //         // find out how much circle is overlaping
-    //         var overlap = combinedHalfWidths - magnitude;
-
-    //         // calculate direction
-    //         var dx = vx / magnitude;
-    //         var dy = vy / magnitude;
-
-    //         // now set circle value to move out of collision
-    //         box1.x += overlap * dx;
-    //         box1.y += overlap * dy;
-
-    //         console.log('======================');
-    //         console.log('Kala HIT');
-    //         console.log('======================');
-    //         console.log('Hit Test::' + hit);
-    //         console.log('vx:' + vx);
-    //         console.log('vy:' + vy);
-    //         console.log('magnitude:' + magnitude);
-    //         console.log('totalRadii:' + totalRadii);
-    //         console.log('overlap:' + overlap);
-    //         console.log('dx:' + dx);
-    //         console.log('dy:' + dy);
-    //         console.log('add x:' + box1.x + overlap * dx);
-    //         console.log('add y:' + box1.y + overlap * dy);
-    //     }
-    //     else
-    //     {
-    //         box1.move();
-    //     }
-
-    //     // sets hit to true if the distance between circle is less than totalradii
-    //     var hit = magnitude < totalRadii;
-
-    //     // box1.move(dx, dy);
-
-
-
-
-    //     return hit;
-    // }
+    //give min and max ant size
+    gameAnimation.init(40,40);
 })();

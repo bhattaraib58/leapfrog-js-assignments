@@ -1,7 +1,11 @@
 var BOX_HEIGHT = 10;
 var BOX_WIDTH = 10;
-var BOX_MOVE_SPEED = 1;
 var GAME_ANIMATION_SPEED_FPS = 60;
+var MIN_BOX_SIZE = 5;
+var MAX_BOX_SIZE = 15;
+//pixel per frame
+var MIN_BOX_SPEED = 1;
+var MAX_BOX_SPEED = 5;
 
 (function () {
 
@@ -35,6 +39,11 @@ var GAME_ANIMATION_SPEED_FPS = 60;
         return Math.random() >= 0.5;
     }
 
+    function getRandomColor()
+    {
+        return 'rgb('+getRandom(0, 255)+','+getRandom(0, 255)+','+getRandom(0, 255)+')';
+    }
+
     /**
      * BOX Class
      *
@@ -51,17 +60,17 @@ var GAME_ANIMATION_SPEED_FPS = 60;
         this.boxWidth = boxWidth || BOX_WIDTH;
         this.boxHeight = boxHeight || BOX_HEIGHT;
 
-        this.speed = speed || BOX_MOVE_SPEED;
+        this.speed = speed || MIN_BOX_SPEED;
 
         this.boxElement = null;
 
         // boxHorizontalMoving true for left to right moving, 
         // boxHorizontalMoving false for right to left moving
-        this.boxHorizontalMoving = true;
+        this.boxHorizontalMoving = getRandomBoolean();
 
         // boxVerticalMoving true for top to down moving, 
         // boxVerticalMoving false for down to top moving
-        this.boxVerticalMoving = true;
+        this.boxVerticalMoving = getRandomBoolean();
 
 
         /**
@@ -69,7 +78,7 @@ var GAME_ANIMATION_SPEED_FPS = 60;
          */
         this.init = function () {
             this.boxElement = document.createElement('div');
-            this.boxElement.style.backgroundColor = `rgb(${getRandom(0, 255)}, ${getRandom(0, 255)}, ${getRandom(0, 255)})`;
+            this.boxElement.style.backgroundColor = getRandomColor();
             this.boxElement.style.height = this.boxHeight + 'px';
             this.boxElement.style.width = this.boxWidth + 'px';
             this.boxElement.style.borderRadius = '50%';
@@ -135,15 +144,25 @@ var GAME_ANIMATION_SPEED_FPS = 60;
         var start = 0,
             frameDuration = 1000 / fps;
 
-        this.init = function () {
+        this.init = function (minBoxSize, maxBoxSize) {
+
+            minBoxSize = minBoxSize || MIN_BOX_SIZE;
+            maxBoxSize = maxBoxSize || MAX_BOX_SIZE;
+
             var parentHeight = parentElement.clientHeight;
             var parentWidth = parentElement.clientWidth;
+            var parentWidthBoundaryForBoxApperance = parentWidth;
+            var parentHeightBoundaryForBoxApperance = parentHeight;
 
             for (var i = 0; i < ballCount; i++) {
-                var size = getRandom(10, 20);
-                var speed = getRandom(1, 5);
-                var x = getRandom(0, (parentWidth - (parentWidth * 3 / 100)));
-                var y = getRandom(0, (parentHeight - (parentWidth * 3 / 100)));
+                var size = getRandom(minBoxSize, maxBoxSize);
+                var speed = getRandom(MIN_BOX_SPEED, MAX_BOX_SPEED);
+
+                parentWidthBoundaryForBoxApperance = parentWidth - size;
+                parentHeightBoundaryForBoxApperance = parentHeight - size;
+
+                var x = getRandom(0, parentWidthBoundaryForBoxApperance);
+                var y = getRandom(0, parentHeightBoundaryForBoxApperance);
                 // create the box inside the parent
                 var box = new Box(x, y, size, size, speed, parentElement);
 
@@ -216,6 +235,9 @@ var GAME_ANIMATION_SPEED_FPS = 60;
                             box.boxVerticalMoving = false;
                             boxes[i].boxVerticalMoving = true;
                         }
+
+                        // set random color on collision
+                        box.boxElement.style.backgroundColor = getRandomColor();
                     }
                 }
             }
@@ -228,8 +250,8 @@ var GAME_ANIMATION_SPEED_FPS = 60;
     // 30 fps sweet spot for 1000 ball tests
     // 120 fps best for smooth running but on less than 200 balls
     // Note: FPS also limited by your display 
-    var gameAnimation = new GameAnimation(200, 30, parentElement);
+    var gameAnimation = new GameAnimation(200, 60, parentElement);
 
     //for now setted the box size also as random
-    gameAnimation.init();
+    gameAnimation.init(5,15);
 })();
