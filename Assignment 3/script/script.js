@@ -1,8 +1,8 @@
 (function () {
-    var CAR_HEIGHT = 150;
-    var CAR_WIDTH = 100;
+    var CAR_HEIGHT = 100;
+    var CAR_WIDTH = 55;
     var GAME_ANIMATION_SPEED_FPS = 60;
-    var CONTAINER_WIDTH = 400;
+    var CONTAINER_WIDTH = 300;
     var CONTAINER_HEIGHT = 650;
     var GAME_SPEED = 1;
 
@@ -20,9 +20,9 @@
 
     var ROAD_LANES =
     {
-        'firstLane': 20,
-        'middleLane': 150,
-        'lastLane': 285
+        'firstLane': 25,
+        'middleLane': 130,
+        'lastLane': 225
     };
 
     var ROAD_LANES_VALUES = Object.values(ROAD_LANES);
@@ -192,7 +192,7 @@
         this.generateUserCar = function () {
             var xAxis = ROAD_LANES_VALUES[currentLane];
             //max user car inside boundary
-            var yAxis = CONTAINER_HEIGHT - CAR_HEIGHT;
+            var yAxis = CONTAINER_HEIGHT - CAR_HEIGHT-10;
             userCar = new CAR(xAxis, yAxis, parentElement);
             //initialized with default image
             userCar.init('./images/Cars/pitstop_car_1.png');
@@ -209,7 +209,7 @@
             obstacleGenerationVariable = setInterval(function () {
                 var carObstacle = generateObstacle(parentElement);
                 obstacleCars.push(carObstacle);
-            }, 2000);
+            }, 2200);
 
             //start animation
             animationFrameVariable = window.requestAnimationFrame(this.animate.bind(this));
@@ -221,6 +221,7 @@
                 if (timestamp >= start) {
                     this.MoveBackgroundImageAndObstacles();
                     DisplayScoreAndInfo(highScore, longestDistanceTravelled, score, distanceTravelled, gameSpeed);
+                    
                     //for fps limitation
                     start = timestamp + frameDuration;
                 }
@@ -278,11 +279,7 @@
         this.moveCar = function (event) {
             //stop moving car if collision occured
             if (!carCollision) {
-                if (event.code == "Space") {
-                    console.log('space fired');
-                }
-
-                if (event.code == "KeyA") {
+                if (event.code == "KeyA" || event.code == "ArrowLeft") {
                     if (currentLane > 0) {
                         if (userCar.x <= ROAD_LANES_VALUES[currentLane]) {
                             currentLane--;
@@ -291,7 +288,7 @@
                         }
                     }
                 }
-                if (event.code == "KeyD") {
+                if (event.code == "KeyD" || event.code == "ArrowRight") {
                     if (currentLane < (ROAD_LANES_VALUES.length - 1)) {
                         if (userCar.x <= ROAD_LANES_VALUES[currentLane]) {
                             currentLane++;
@@ -376,7 +373,8 @@
     var parentElement = document.getElementById('containerStrips');
     var gameAnimation = new GameAnimation(120, parentElement);
 
-    window.addEventListener("keypress", gameAnimation.moveCar);
+    // window.addEventListener("keypress", gameAnimation.moveCar);
+    window.addEventListener("keydown", gameAnimation.moveCar);
 
     var pauseRestartButton = document.getElementById('play-restart');
     pauseRestartButton.addEventListener("click", playRestart);
