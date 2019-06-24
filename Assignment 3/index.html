@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/style.css">
+    <title>2D CAR RACING</title>
+</head>
+
+<body id="body">
+    <h1>2D CAR RACING</h1>
+    <div class="car-race">
+        <div class="info" id="info">
+            <h2>High Score: <span id="highScore"></span></h2>
+            <h2>Longest Distance Travelled: <span id="longestDistanceTravelled"></span></h2>
+            <div>Score:<span id="score"></span></div>
+            <div>Distance Travelled:<span id="distanceTravelled"></span></div>
+            <div>Speed: <span id="speed"></span></div>
+            <div id="Message">
+                <div id="highscore"></div>
+                <div id="longestdistance"></div>
+            </div>
+            <div class="instruction">Use A/D Key to move Left/Right</div>
+        </div>
+
+        <div class="container-lane" id="containerLane">
+            <div class="container-strips" id="containerStrips">
+                <div class="game-pause-play" id="game-pause-play">
+                    <button id="play-restart">Play</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="script/script.js"></script>
+
+</html>
