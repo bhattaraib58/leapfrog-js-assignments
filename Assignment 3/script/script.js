@@ -153,6 +153,7 @@
         // current lane 1 as in middle
         var currentLane = 1;
         var score = 0;
+        var objectGenerationRate = CAR_HEIGHT * 3 + 20;
         var distanceTravelled = 0;
         var highScore = localStorage.getItem("highScore") || 0;
         var longestDistanceTravelled = localStorage.getItem("longestDistanceTravelled") || 0;
@@ -162,7 +163,6 @@
             frameDuration = 1000 / fps;
         var animationFrameVariable = 0;
         var speedIntervalVariable = 0;
-        var obstacleGenerationVariable = 0;
         var gameSpeed = gameSpeed || GAME_SPEED;
 
         this.init = function () {
@@ -177,6 +177,7 @@
             carCollision = false;
             currentLane = 1;
             score = 0;
+            objectGenerationRate = CAR_HEIGHT * 3 + 20;
             distanceTravelled = 0;
             highScore = localStorage.getItem("highScore") || 0;
             longestDistanceTravelled = localStorage.getItem("longestDistanceTravelled") || 0;
@@ -192,8 +193,9 @@
         this.generateUserCar = function () {
             var xAxis = ROAD_LANES_VALUES[currentLane];
             //max user car inside boundary
-            var yAxis = CONTAINER_HEIGHT - CAR_HEIGHT-10;
+            var yAxis = CONTAINER_HEIGHT - CAR_HEIGHT - 10;
             userCar = new CAR(xAxis, yAxis, parentElement);
+
             //initialized with default image
             userCar.init('./images/Cars/pitstop_car_1.png');
             userCar.draw();
@@ -205,11 +207,11 @@
                 gameSpeed += 0.1;
             }, 1000);
 
-            //generate obstacle every 3 sec
-            obstacleGenerationVariable = setInterval(function () {
+            //generate obstacle after 1.2 sec
+            setTimeout(function () {
                 var carObstacle = generateObstacle(parentElement);
                 obstacleCars.push(carObstacle);
-            }, 2200);
+            }, 1200);
 
             //start animation
             animationFrameVariable = window.requestAnimationFrame(this.animate.bind(this));
@@ -219,9 +221,10 @@
             if (!carCollision) {
                 // for limiting fps
                 if (timestamp >= start) {
+                    this.createObstacles();
                     this.MoveBackgroundImageAndObstacles();
                     DisplayScoreAndInfo(highScore, longestDistanceTravelled, score, distanceTravelled, gameSpeed);
-                    
+
                     //for fps limitation
                     start = timestamp + frameDuration;
                 }
@@ -230,7 +233,6 @@
             if (carCollision) {
                 window.cancelAnimationFrame(animationFrameVariable);
                 clearInterval(speedIntervalVariable);
-                clearInterval(obstacleGenerationVariable);
 
                 setHighScoreIfHighest(highScore, score, longestDistanceTravelled, distanceTravelled);
 
@@ -238,6 +240,23 @@
                 pauseRestartButton.innerHTML = 'Restart';
             }
         };
+
+        this.createObstacles = function () {
+            //check if last car is greater than on distance of objectGenerationRate
+            // default objectGenerationRate= 3*car height
+            if (obstacleCars.length != 0) {
+                var lastCar = obstacleCars[obstacleCars.length - 1];
+                if (lastCar.y > objectGenerationRate) {
+                    var carObstacle = generateObstacle(parentElement);
+                    obstacleCars.push(carObstacle);
+                }
+            }
+
+            //generate objects on per 2* car height for 5000 distance
+            if (distanceTravelled > 5000) {
+                objectGenerationRate = CAR_HEIGHT * 2 + 20;
+            }
+        }
 
         this.MoveBackgroundImageAndObstacles = function () {
             distanceTravelled += gameSpeed;
