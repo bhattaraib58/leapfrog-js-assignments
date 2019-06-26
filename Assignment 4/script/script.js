@@ -229,7 +229,8 @@
         var highScore = localStorage.getItem("highScore") || 0;
 
         var keyPressed = false;
-        var keyPressedTime = new Date().getTime();
+        var keyPressedCounter = 0;
+        var keyPressedId = 0;
 
         fps = fps || GAME_ANIMATION_SPEED_FPS;
         var start = 0,
@@ -264,7 +265,8 @@
             highScore = localStorage.getItem("highScore") || 0;
 
             keyPressed = false;
-            keyPressedTime = new Date().getTime();
+            keyPressedCounter = 0;
+            keyPressedId = 0;
 
             start = 0;
             animationFrameVariable = 0;
@@ -275,6 +277,7 @@
 
             document.getElementById("highScore").innerHTML = '';
             document.getElementById("score").innerHTML = '';
+            document.getElementById("message").innerHTML ='';
         };
 
 
@@ -298,6 +301,7 @@
             }
             if (birdCollision) {
                 window.cancelAnimationFrame(animationFrameVariable);
+                setHighScoreIfHighest(highScore, score);
                 pauseRestartButton.style.display = 'block';
             }
         };
@@ -353,12 +357,15 @@
                     birdCollision = true;
                 }
 
+                //set score when bird passes the pipe
+                if (bird.getBirdLeft() >= obstacles[i].getPipeRight() && obstacles[i].getPipeRight() >= BIRD_DEFAULT_X_POSITION) {
+                    score += 0.5;
+                }
 
                 // if obstacles out of container remove them
                 if (obstacles[i].x < -(PIPE_WIDTH * 2)) {
                     obstacles[i].clearPipe();
                     isPipeOutOfBoundary = true;
-                    score += 0.5;
                 }
             }
 
@@ -373,10 +380,9 @@
         };
 
         this.moveBird = function () {
-            //Set the cat's acceleration if the keys are being pressed
+            //Set the bird's acceleration if the keys are being pressed
             if (keyPressed) {
                 bird.accelerationY = -5;
-                // bird.gravity = 0;
             }
 
             //Set the bird's acceleration to zero and gravity to default 
@@ -429,24 +435,28 @@
             bird.draw();
         };
 
-        this.userKeyPressed = function (event) {
-            // only let user press key after 100ms 
-            // solved the continious key press without leaving the button issue by this
-            if ((new Date().getTime() - keyPressedTime) > 100) {
+        this.getUserTapInputPressed = function (event) {
+
+            // check if key is being continiously pressed without removing
+            if (keyPressedCounter === 0) {
                 keyPressed = true;
+
+                //set timeout for clearing the key pressed
+                keyPressedId = setTimeout(function () {
+                    keyPressed = false;
+                }, 200);
             }
+            //set key pressed to false on if key is not removed
             else {
                 keyPressed = false;
             }
-
-            //remove user key event after 100ms
-            setTimeout(function () {
-                keyPressed = false;
-            }, 100);
+            keyPressedCounter++;
         };
 
-        this.userKeyPressedRemoved = function () {
+        this.getUserTapInputPressedRemoved = function () {
+            clearTimeout(keyPressedId);
             keyPressed = false;
+            keyPressedCounter = 0;
         };
     }
 
@@ -471,7 +481,7 @@
     function setHighScoreIfHighest(highScore, userScore) {
         if (userScore > highScore) {
             localStorage.setItem("highScore", userScore);
-            document.getElementById("highscore").innerHTML = 'Congratulations You have Got High Score';
+            document.getElementById("message").innerHTML = 'Congratulations You have Got High Score';
         }
     }
 
@@ -479,10 +489,14 @@
     var parentElement = document.getElementById('containerBackground');
     var gameAnimation = new GameAnimation(120, parentElement);
 
-    window.addEventListener("keydown", gameAnimation.userKeyPressed, true);
-    window.addEventListener("keyup", gameAnimation.userKeyPressedRemoved, false);
-    window.addEventListener("mousedown", gameAnimation.userKeyPressed, true);
-    window.addEventListener("mouseup", gameAnimation.userKeyPressedRemoved, false);
+    window.addEventListener("keydown", gameAnimation.getUserTapInputPressed, true);
+    window.addEventListener("keyup", gameAnimation.getUserTapInputPressedRemoved, false);
+
+    window.addEventListener("mousedown", gameAnimation.getUserTapInputPressed, true);
+    window.addEventListener("mouseup", gameAnimation.getUserTapInputPressedRemoved, false);
+
+    window.addEventListener("ontouchstart", gameAnimation.getUserTapInputPressed, true);
+    window.addEventListener("ontouchend", gameAnimation.getUserTapInputPressedRemoved, false);
 
     var pauseRestartButton = document.getElementById('game-restart-play');
     pauseRestartButton.style.height = CONTAINER_HEIGHT + 'px';
@@ -492,6 +506,7 @@
     pauseRestartButton.style.zIndex = 20;
 
     pauseRestartButton.addEventListener("click", playRestart);
+    pauseRestartButton.addEventListener("ontouchstart", playRestart);
 
     function playRestart() {
         pauseRestartButton.style.display = 'none';
