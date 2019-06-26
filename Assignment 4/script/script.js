@@ -12,8 +12,12 @@
     var BIRD_HEIGHT = 24;
     var BIRD_WIDTH = 34;
     var BIRD_DEFAULT_X_POSITION = 50;
-    var BIRD_DEFAULT_Y_POSITION = CONTAINER_HEIGHT / 2;
+    var BIRD_DEFAULT_Y_POSITION = CONTAINER_HEIGHT / 2 / 2;
 
+    var dieAudio = new Audio('./assets/audio/die.wav');
+    var pointAudio = new Audio('./assets/audio/point.wav');
+    var swooshAudio = new Audio('./assets/audio/swoosh.wav');
+    var wingAudio = new Audio('./assets/audio/wing.wav');
 
     var OBSTACLE_BETWEEN_SPACE = 2 * BIRD_HEIGHT;
 
@@ -277,7 +281,7 @@
 
             document.getElementById("highScore").innerHTML = '';
             document.getElementById("score").innerHTML = '';
-            document.getElementById("message").innerHTML ='';
+            document.getElementById("message").innerHTML = '';
         };
 
 
@@ -300,6 +304,7 @@
                 animationFrameVariable = window.requestAnimationFrame(this.animate.bind(this));
             }
             if (birdCollision) {
+                dieAudio.play();
                 window.cancelAnimationFrame(animationFrameVariable);
                 setHighScoreIfHighest(highScore, score);
                 pauseRestartButton.style.display = 'block';
@@ -360,6 +365,7 @@
                 //set score when bird passes the pipe
                 if (bird.getBirdLeft() >= obstacles[i].getPipeRight() && obstacles[i].getPipeRight() >= BIRD_DEFAULT_X_POSITION) {
                     score += 0.5;
+                    pointAudio.play();
                 }
 
                 // if obstacles out of container remove them
@@ -383,6 +389,7 @@
             //Set the bird's acceleration if the keys are being pressed
             if (keyPressed) {
                 bird.accelerationY = -5;
+                wingAudio.play();
             }
 
             //Set the bird's acceleration to zero and gravity to default 
@@ -391,6 +398,8 @@
                 bird.accelerationY = 0;
                 bird.gravity = 0.3;
             }
+
+            swooshAudio.play();
 
             //Apply the acceleration
             bird.vy += bird.accelerationY;
@@ -410,7 +419,6 @@
             var ty = bird.y;
 
             //Move the bird
-            bird.x += bird.vx;
             bird.y += bird.vy;
 
             // if previous y greater than new y value move angle up
@@ -508,7 +516,8 @@
     pauseRestartButton.addEventListener("click", playRestart);
     pauseRestartButton.addEventListener("ontouchstart", playRestart);
 
-    function playRestart() {
+    function playRestart(event) {
+        console.log(event);
         pauseRestartButton.style.display = 'none';
         gameAnimation.init();
     }
