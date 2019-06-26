@@ -516,8 +516,7 @@
     pauseRestartButton.addEventListener("click", playRestart);
     pauseRestartButton.addEventListener("ontouchstart", playRestart);
 
-    function playRestart(event) {
-        console.log(event);
+    function playRestart() {
         pauseRestartButton.style.display = 'none';
         gameAnimation.init();
     }
