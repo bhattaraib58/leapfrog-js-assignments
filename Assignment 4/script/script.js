@@ -46,18 +46,20 @@
         var gameBackground = GAME_MODES[getRandom(0, 1)];
         containerBackground.style.backgroundImage = 'url(' + gameBackground + ')';
         containerBackground.style.margin = 'auto auto';
-        containerBackground.style.backgroundSize = '100%';
+        containerBackground.style.backgroundSize = '100% 100%';
         containerBackground.style.backgroundRepeat = 'repeat-x';
+        containerBackground.style.position = 'relative';
+        containerBackground.style.overflow = 'hidden';
 
         var containerRoad = document.getElementById('containerRoad');
-        containerRoad.style.position = 'relative';
+        containerRoad.style.position = 'absolute';
         containerRoad.style.height = CONTAINER_HEIGHT + 'px';
         containerRoad.style.width = CONTAINER_WIDTH + 'px';
         containerRoad.style.backgroundImage = 'url(\'./assets/sprites/base.png\')';
         containerRoad.style.backgroundSize = '100%';
         containerRoad.style.backgroundRepeat = 'repeat-x';
         containerRoad.style.backgroundPosition = 'bottom';
-        containerRoad.style.overflow = 'hidden';
+        containerRoad.style.zIndex = 20;
     }());
 
 
@@ -106,7 +108,7 @@
             this.birdElement.style.width = BIRD_WIDTH + 'px';
             this.birdElement.style.position = 'absolute';
             this.birdElement.style.transform = 'rotate(' + this.angle + 'deg)';
-            this.birdElement.style.zIndex = 10;
+            this.birdElement.style.zIndex = 30;
 
             parentElement && parentElement.appendChild(this.birdElement);
         };
@@ -247,14 +249,13 @@
             animationFrameVariable = window.requestAnimationFrame(this.animate.bind(this));
         };
 
-
         this.gameReset = function () {
             obstacles = [];
             bird = null;
             birdCollision = false;
 
             var gameBackground = GAME_MODES[getRandom(0, 1)];
-            parentElement.parentNode.style.backgroundImage = 'url(' + gameBackground + ')';
+            parentElement.style.backgroundImage = 'url(' + gameBackground + ')';
 
             obstacleImage = OBSTACLES[getRandom(0, 1)];
 
@@ -305,12 +306,11 @@
             // check if last pipe is greater than on distance of objectGenerationRate
             if (obstacles.length != 0) {
                 var lastPipe = obstacles[obstacles.length - 1];
-                if (lastPipe.x < 30) {
+                if (lastPipe.x < PIPE_WIDTH * 3) {
                     this.generateObstacle();
                 }
             }
         };
-
 
         /**
          * Generates Pipe Obstacle
@@ -319,27 +319,25 @@
         this.generateObstacle = function () {
             var top = getRandom(0, MOVING_SPACE - OBSTACLE_BETWEEN_SPACE);
             var bottom = MOVING_SPACE + OBSTACLE_BETWEEN_SPACE - top;
+            var initialPipeGenerationArea = CONTAINER_WIDTH + PIPE_WIDTH + 10;
 
             var pipe1 = new PIPE(parentElement);
             pipe1.init(obstacleImage);
-            pipe1.move(CONTAINER_WIDTH - PIPE_WIDTH, -top);
+            pipe1.move(initialPipeGenerationArea, -top);
             pipe1.pipeElement.style.transform = 'rotate(180deg)';
             obstacles.push(pipe1);
 
             var pipe2 = new PIPE(parentElement);
             pipe2.init(obstacleImage);
-            pipe2.move(CONTAINER_WIDTH - PIPE_WIDTH, bottom);
+            pipe2.move(initialPipeGenerationArea, bottom);
             obstacles.push(pipe2);
         };
-
 
         this.MoveBackgroundImageAndObstacles = function () {
             //decrease distance travelled for move of background image
             distanceTravelled -= gameSpeed;
             // move background image
-            parentElement.style.backgroundPositionX = distanceTravelled + 'px';
-
-            console.log(obstacles);
+            parentElement.children[0].style.backgroundPositionX = distanceTravelled + 'px';
 
             var isPipeOutOfBoundary = false;
             //move the obstacles 
@@ -357,10 +355,10 @@
 
 
                 // if obstacles out of container remove them
-                if (obstacles[i].x < 0) {
+                if (obstacles[i].x < -(PIPE_WIDTH * 2)) {
                     obstacles[i].clearPipe();
                     isPipeOutOfBoundary = true;
-                    score += 1;
+                    score += 0.5;
                 }
             }
 
@@ -478,7 +476,7 @@
     }
 
 
-    var parentElement = document.getElementById('containerRoad');
+    var parentElement = document.getElementById('containerBackground');
     var gameAnimation = new GameAnimation(120, parentElement);
 
     window.addEventListener("keydown", gameAnimation.userKeyPressed, true);
